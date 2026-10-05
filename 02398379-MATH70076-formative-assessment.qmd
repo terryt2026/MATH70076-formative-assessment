@@ -83,7 +83,43 @@ Does your answer contain:
 
 
 <!-- YOUR DERIVATION GOES HERE -->
+Since $F_X$ from @eq-gpd-cdf is continuous, then $A = F_X(X)$ with $A \sim U[0,1]$ by the probability integral transform. Therefore, let $p \in (0,1)$, the inverse CDF can be obtained by setting $p = F_X(x)$, and solve for $x$. Since @eq-gpd-cdf has separate forms for $\xi \neq 0$ and $\xi = 0$, we will considered the two cases separately. For each cases, we will also consider the endpoints $p=0$ and $p=1$ seperately.
 
+If $\xi \neq 0$, then
+
+$$
+\begin{align}
+  p &= 1 - \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} \iff\\
+  \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} &= 1-p  \quad \iff \\
+  \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)^{-1/\xi} &= 1-p  \quad \text{since } 1-p >0 \quad \iff \\
+  1 + \dfrac{\xi (x-u)}{\sigma} &= (1 - p)^{-\xi}  \quad \iff \\
+  x &= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \quad.
+\end{align}
+$$
+
+If $\xi = 0$, then
+
+$$
+\begin{align}
+  p &= 1 - \exp\!\left(-\dfrac{x-u}{\sigma}\right) \iff\\
+  \exp\!\left(-\dfrac{x-u}{\sigma}\right) &= 1-p \quad \iff \\
+  x &= u - \sigma\log(1-p) \quad.
+\end{align}
+$$
+
+Now if $p = 0$, then the expressions are valid in both cases since $1-p > 0$, and we have $F^{-1}_X(0) = u$. However, consider $p=1$, then we have issues. If $\xi < 0$, we get $F^{-1}_X(0) = u-\sigma/\xi = x^+$; if $\xi > 0$, then $(1 - p)^{-\xi} \rightarrow +\infty$, and if $\xi = 0$, then $\log(1-p) \rightarrow -\infty$, so for $\xi \geq 0$, we get $F^{-1}_X(1) = +\infty$.
+
+Altogether, the inverse CDF of $X \sim \text{GPD}(u,\sigma,\xi)$, is given by
+
+$$
+F_X^{-1}(p;\,\sigma,\xi, u) = 
+\begin{cases}
+u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi}, & \xi \neq 0, \, p \in [0,1); \; \\[1.2em]
+u - \sigma\log(1-p), & \xi = 0, \, p \in [0,1); \; \\[1.2em]
+u-\sigma/\xi , & \xi < 0, \, p = 1; \; \\[1.2em]
++\infty , & \xi \geq 0, \, p = 1.
+\end{cases}
+$$ {#eq-gpd-qf}
 
 
 ### Question 2 
