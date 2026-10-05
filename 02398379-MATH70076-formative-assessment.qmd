@@ -82,7 +82,6 @@ Does your answer contain:
 :::
 
 
-<!-- YOUR DERIVATION GOES HERE -->
 Since $F_X$ from @eq-gpd-cdf is continuous, then $A = F_X(X)$ with $A \sim U[0,1]$ by the probability integral transform. Therefore, let $p \in (0,1)$, the inverse CDF can be obtained by setting $p = F_X(x)$, and solve for $x$. Since @eq-gpd-cdf has separate forms for $\xi \neq 0$ and $\xi = 0$, we will considered the two cases separately. For each cases, we will also consider the endpoints $p=0$ and $p=1$ seperately.
 
 If $\xi \neq 0$, then
@@ -93,7 +92,7 @@ $$
   \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} &= 1-p  \quad \iff \\
   \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)^{-1/\xi} &= 1-p  \quad \text{since } 1-p >0 \quad \iff \\
   1 + \dfrac{\xi (x-u)}{\sigma} &= (1 - p)^{-\xi}  \quad \iff \\
-  x &= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \quad.
+  x &= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \; .
 \end{align}
 $$
 
@@ -103,7 +102,8 @@ $$
 \begin{align}
   p &= 1 - \exp\!\left(-\dfrac{x-u}{\sigma}\right) \iff\\
   \exp\!\left(-\dfrac{x-u}{\sigma}\right) &= 1-p \quad \iff \\
-  x &= u - \sigma\log(1-p) \quad.
+  -\dfrac{x-u}{\sigma} &= \log(1-p) \quad \iff \\
+  x &= u - \sigma\log(1-p) \; .
 \end{align}
 $$
 
@@ -144,9 +144,57 @@ Does your answer:
 
 :::
 
+
+(a)
+
 ```{r}
-# YOUR CODE GOES HERE
+qgpd <- function(p, u, sigma, xi){
+  # Check that probabilities are between 0 and 1
+  if (any(p < 0 | p > 1, na.rm = TRUE)) {
+    stop("p must be between 0 and 1.")
+  }
+  
+  # Check that u is a single value, not a vector
+  if (length(u) != 1) {
+    stop("u must be a single real value.")
+  }
+  
+  # Check that sigma is a single positive value
+  if (length(sigma) != 1 || sigma <= 0) {
+    stop("sigma must be a single positive real value.")
+  }
+  
+  # Check that xi is a single value
+  if (length(xi) != 1) {
+    stop("xi must be a single real value.")
+  }
+  
+  # Calculate the quantiles using the inverse formula from Q1
+  if (xi != 0) {
+    u + sigma*((1 - p)^(-xi) - 1)/xi
+  } else {
+    u - sigma * log(1 - p)
+  }
+}
 ```
+
+The function $\texttt{qgpd()}$ takes four inputs. The argument $\texttt{p}$ is a vector of probabilities between $0$ and $1$; $\texttt{u}$, $\texttt{sigma}$ and $\texttt{xi}$ are the location, scale and shape parameters of the GPD, respectively. The parameters $\texttt{u}$ and $\texttt{xi}$ are each required to be a single real value, and $\texttt{sigma}$ must be a single positive real value. 
+
+If any probability lies outside the interval $[0,1]$, or if any of the parameters do not satisfy the required conditions, the function returns an error message. Otherwise, the function returns a vector of quantiles corresponding to the probabilities of $\texttt{p}$. Missing values in $\texttt{p}$ are preserved as missing values in the output in the same way as to $\texttt{qnorm()}$ and $\texttt{qunif()}$.
+
+(b)
+
+Let $X \sim \text{GPD}(1.5, 2, -0.4)$, and $\Pr(X < x_p) = p$. Using part (a), we get
+```{r}
+#| echo: FALSE
+
+p = c(0.5, 0.75, 0.99)
+x_p = qgpd(p, 1.5, 2, -0.4)
+
+quantiles <- data.frame(p, x_p)
+knitr::kable(x = round(quantiles, 2), col.names = c("$p$", "$x_p$"))
+```
+
 
 ### Question 3
 

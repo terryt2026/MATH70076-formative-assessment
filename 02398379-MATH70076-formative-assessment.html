@@ -2462,7 +2462,6 @@ f(x;\sigma,\xi,u) =
 </ul>
 </div>
 </div>
-<!-- YOUR DERIVATION GOES HERE -->
 <p>Since <span class="math inline">\(F_X\)</span> from <a href="#eq-gpd-cdf" class="quarto-xref">Equation 1</a> is continuous, then <span class="math inline">\(A = F_X(X)\)</span> with <span class="math inline">\(A \sim U[0,1]\)</span> by the probability integral transform. Therefore, let <span class="math inline">\(p \in (0,1)\)</span>, the inverse CDF can be obtained by setting <span class="math inline">\(p = F_X(x)\)</span>, and solve for <span class="math inline">\(x\)</span>. Since <a href="#eq-gpd-cdf" class="quarto-xref">Equation 1</a> has separate forms for <span class="math inline">\(\xi \neq 0\)</span> and <span class="math inline">\(\xi = 0\)</span>, we will considered the two cases separately. For each cases, we will also consider the endpoints <span class="math inline">\(p=0\)</span> and <span class="math inline">\(p=1\)</span> seperately.</p>
 <p>If <span class="math inline">\(\xi \neq 0\)</span>, then</p>
 <p><span class="math display">\[
@@ -2471,7 +2470,7 @@ f(x;\sigma,\xi,u) =
   \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} &amp;= 1-p  \quad \iff \\
   \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)^{-1/\xi} &amp;= 1-p  \quad \text{since } 1-p &gt;0 \quad \iff \\
   1 + \dfrac{\xi (x-u)}{\sigma} &amp;= (1 - p)^{-\xi}  \quad \iff \\
-  x &amp;= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \quad.
+  x &amp;= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \; .
 \end{align}
 \]</span></p>
 <p>If <span class="math inline">\(\xi = 0\)</span>, then</p>
@@ -2479,7 +2478,8 @@ f(x;\sigma,\xi,u) =
 \begin{align}
   p &amp;= 1 - \exp\!\left(-\dfrac{x-u}{\sigma}\right) \iff\\
   \exp\!\left(-\dfrac{x-u}{\sigma}\right) &amp;= 1-p \quad \iff \\
-  x &amp;= u - \sigma\log(1-p) \quad.
+  -\dfrac{x-u}{\sigma} &amp;= \log(1-p) \quad \iff \\
+  x &amp;= u - \sigma\log(1-p) \; .
 \end{align}
 \]</span></p>
 <p>Now if <span class="math inline">\(p = 0\)</span>, then the expressions are valid in both cases since <span class="math inline">\(1-p &gt; 0\)</span>, and we have <span class="math inline">\(F^{-1}_X(0) = u\)</span>. However, consider <span class="math inline">\(p=1\)</span>, then we have issues. If <span class="math inline">\(\xi &lt; 0\)</span>, we get <span class="math inline">\(F^{-1}_X(0) = u-\sigma/\xi = x^+\)</span>; if <span class="math inline">\(\xi &gt; 0\)</span>, then <span class="math inline">\((1 - p)^{-\xi} \rightarrow +\infty\)</span>, and if <span class="math inline">\(\xi = 0\)</span>, then <span class="math inline">\(\log(1-p) \rightarrow -\infty\)</span>, so for <span class="math inline">\(\xi \geq 0\)</span>, we get <span class="math inline">\(F^{-1}_X(1) = +\infty\)</span>.</p>
@@ -2521,8 +2521,70 @@ u-\sigma/\xi , &amp; \xi &lt; 0, \, p = 1; \; \\[1.2em]
 </ul>
 </div>
 </div>
+<ol type="a">
+<li></li>
+</ol>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE GOES HERE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>qgpd <span class="ot">&lt;-</span> <span class="cf">function</span>(p, u, sigma, xi){</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that probabilities are between 0 and 1</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(p <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">|</span> p <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;p must be between 0 and 1.&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that u is a single value, not a vector</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(u) <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;u must be a single real value.&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that sigma is a single positive value</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(sigma) <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">||</span> sigma <span class="sc">&lt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;sigma must be a single positive real value.&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that xi is a single value</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(xi) <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;xi must be a single real value.&quot;</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the quantiles using the inverse formula from Q1</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (xi <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    u <span class="sc">+</span> sigma<span class="sc">*</span>((<span class="dv">1</span> <span class="sc">-</span> p)<span class="sc">^</span>(<span class="sc">-</span>xi) <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">/</span>xi</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    u <span class="sc">-</span> sigma <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The function <span class="math inline">\(\texttt{qgpd()}\)</span> takes four inputs. The argument <span class="math inline">\(\texttt{p}\)</span> is a vector of probabilities between <span class="math inline">\(0\)</span> and <span class="math inline">\(1\)</span>; <span class="math inline">\(\texttt{u}\)</span>, <span class="math inline">\(\texttt{sigma}\)</span> and <span class="math inline">\(\texttt{xi}\)</span> are the location, scale and shape parameters of the GPD, respectively. The parameters <span class="math inline">\(\texttt{u}\)</span> and <span class="math inline">\(\texttt{xi}\)</span> are each required to be a single real value, and <span class="math inline">\(\texttt{sigma}\)</span> must be a single positive real value.</p>
+<p>If any probability lies outside the interval <span class="math inline">\([0,1]\)</span>, or if any of the parameters do not satisfy the required conditions, the function returns an error message. Otherwise, the function returns a vector of quantiles corresponding to the probabilities of <span class="math inline">\(\texttt{p}\)</span>. Missing values in <span class="math inline">\(\texttt{p}\)</span> are preserved as missing values in the output in the same way as to <span class="math inline">\(\texttt{qnorm()}\)</span> and <span class="math inline">\(\texttt{qunif()}\)</span>.</p>
+<ol start="2" type="a">
+<li></li>
+</ol>
+<p>Let <span class="math inline">\(X \sim \text{GPD}(1.5, 2, -0.4)\)</span>, and <span class="math inline">\(\Pr(X &lt; x_p) = p\)</span>. Using part (a), we get</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">\(p\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(x_p\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">2.71</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">3.63</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">5.71</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </section>
 <section id="question-3" class="level3">
@@ -2633,7 +2695,39 @@ u-\sigma/\xi , &amp; \xi &lt; 0, \, p = 1; \; \\[1.2em]
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE GOES HERE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>qgpd <span class="ot">&lt;-</span> <span class="cf">function</span>(p, u, sigma, xi){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that probabilities are between 0 and 1</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(p <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">|</span> p <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;p must be between 0 and 1.&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that u is a single value, not a vector</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(u) <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;u must be a single real value.&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that sigma is a single positive value</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(sigma) <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">||</span> sigma <span class="sc">&lt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;sigma must be a single positive real value.&quot;</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that xi is a single value</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(xi) <span class="sc">!=</span> <span class="dv">1</span>) {</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;xi must be a single real value.&quot;</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the quantiles using the inverse formula from Q1</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (xi <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    u <span class="sc">+</span> sigma<span class="sc">*</span>((<span class="dv">1</span> <span class="sc">-</span> p)<span class="sc">^</span>(<span class="sc">-</span>xi) <span class="sc">-</span> <span class="dv">1</span>)<span class="sc">/</span>xi</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    u <span class="sc">-</span> sigma <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>p <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.99</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>x_p <span class="ot">=</span> <span class="fu">qgpd</span>(p, <span class="fl">1.5</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="fl">0.4</span>)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>quantiles <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(p, x_p)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">x =</span> <span class="fu">round</span>(quantiles, <span class="dv">2</span>), <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;$p$&quot;</span>, <span class="st">&quot;$x_p$&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
