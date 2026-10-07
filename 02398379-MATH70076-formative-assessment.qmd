@@ -178,9 +178,9 @@ qgpd <- function(p, u, sigma, xi){
 }
 ```
 
-The function $\texttt{qgpd()}$ takes four inputs. The argument $\texttt{p}$ is a vector of probabilities between $0$ and $1$; $\texttt{u}$, $\texttt{sigma}$ and $\texttt{xi}$ are the location, scale and shape parameters of the GPD, respectively. The parameters $\texttt{u}$ and $\texttt{xi}$ are each required to be a single real value, and $\texttt{sigma}$ must be a single positive real value. 
+The function `qgpd()` takes four inputs. The argument $\texttt{p}$ is a vector of probabilities between $0$ and $1$; $\texttt{u}$, $\texttt{sigma}$ and $\texttt{xi}$ are the location, scale and shape parameters of the GPD, respectively. The parameters $\texttt{u}$ and $\texttt{xi}$ are each required to be a single real value, and $\texttt{sigma}$ must be a single positive real value. 
 
-If any probability lies outside the interval $[0,1]$, or if any of the parameters do not satisfy the required conditions, the function returns an error message. Otherwise, the function returns a vector of quantiles corresponding to the probabilities of $\texttt{p}$. Missing values in $\texttt{p}$ are preserved as missing values in the output in the same way as to $\texttt{qnorm()}$ and $\texttt{qunif()}$.
+If any probability lies outside the interval $[0,1]$, or if any of the parameters do not satisfy the required conditions, the function returns an error message. Otherwise, the function returns a vector of quantiles corresponding to the probabilities of $\texttt{p}$. Missing values in $\texttt{p}$ are preserved as missing values in the output in the same way as to `qnorm()` and `qunif()`.
 
 (b)
 
@@ -217,8 +217,53 @@ Does your solution contain:
 
 :::
 
-<!-- YOUR ANSWER GOES HERE --> 
+```{r}
+#| echo: FALSE
 
+gpd_samples <- read.csv("gpd_samples.csv")
+gpd_parameters <- read.csv("gpd_parameters.csv")
+```
+
+We obtain the samples and the parameters from the files `gpd_samples.csv` and `gpd_parameters.csv`, and use them to obtain qq-plots for each of the 6 pairs of generalised Pareto distribution.
+
+```{r}
+#| echo: FALSE
+#| layout-ncol: 3
+#| label: fig-qqplots
+#| fig-cap: "QQ-plots comparing the observed and theoretical quantiles of the recorded GPD."
+#| fig-subcap: 
+#|   - "QQ-plot for GDP a"
+#|   - "QQ-plot for GDP b"
+#|   - "QQ-plot for GDP c"
+#|   - "QQ-plot for GDP d"
+#|   - "QQ-plot for GDP e"
+#|   - "QQ-plot for GDP f"
+
+for (i in 1:6) {
+  id <- gpd_parameters$id[i]
+  sample_val <- sort(gpd_samples$value[gpd_samples$set_id == id])
+
+  p <- ppoints(length(sample_val))
+  u <- gpd_parameters$u[i]
+  sigma <- gpd_parameters$sigma[i]
+  xi <- gpd_parameters$xi[i]
+
+  theoretical_val <- qgpd(p, u, sigma, xi)
+
+  plot(theoretical_val, 
+       sample_val, 
+       xlab = "Theoretical quantiles", 
+       ylab = "Sample quantiles", 
+       main = paste("QQ-plot for GDP", id))
+  
+  abline(a = 0, b = 1, lty = 2)
+}
+
+```
+
+@fig-qqplots suggests that samples $\textbf{a}$ and $\textbf{d}$ are inconsistent with their recorded parameters. For sample $\textbf{a}$, the points in the upper tail of @fig-qqplots-1 drifts away from the dashed reference line $y=x$. Also, since its recorded shape parameter is $\xi=-0.4 < 0$, the distribution must has finite upper endpoint $x^+=u-\sigma/\xi=6.5$, but the sample clearly contains an observation greater than $8$. Therefore, there are some strong evidences that suggests the parameters recorded for sample $\textbf{a}$ are incorrect. That aside, in @fig-qqplots-4, qq-plot for sample $\textbf{d}$ are in general, completely below the reference line, which indicates that its recorded parameters are incorrect.
+
+In contrast, sample $\textbf{b}$ follows the reference line closely in @fig-qqplots-2. Samples $\textbf{c}$, $\textbf{e}$ and $\textbf{f}$ has some deviations in their upper tails, shown on @fig-qqplots-3, @fig-qqplots-5, and @fig-qqplots-6, respectively, but these are weak evidence of incorrect parameters. Sample $\textbf{c}$ only has 20 observations, which is insufficient to deduce a significant conclusion. Samples $\textbf{e}$ and $\textbf{f}$ both have recorded $\xi >0$ and hence a heavy upper tail fits with the plots. Overall, I would suggest to only identify $\textbf{a}$ and $\textbf{d}$ as the incorrectly recorded parameter sets.
 
 ### Question 4
 
