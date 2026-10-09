@@ -29,9 +29,9 @@ _In submitting this mock assessment you certify that it is entirely your own wor
 
 -----
 
-## Background 
+## Background
 
-### Generalised Pareto Distribution 
+### Generalised Pareto Distribution
 
 The Generalized Pareto Distribution (GPD) is a flexible family of continuous probability distributions that arises naturally in extreme value theory, particularly for modelling the distribution of excesses over a threshold. It is parametrised by a shape parameter $\xi \in \mathbb{R}$, a scale parameter $\sigma > 0$, and a location parameter $u \in \mathbb{R}$. Its cumulative distribution function (CDF) is given by
 
@@ -84,30 +84,29 @@ Does your answer contain:
 
 Since $F_X$ from @eq-gpd-cdf is continuous, then $A = F_X(X)$ with $A \sim U[0,1]$ by the probability integral transform. Therefore, let $p \in (0,1)$, the inverse CDF can be obtained by setting $p = F_X(x)$, and solve for $x$. Since @eq-gpd-cdf has separate forms for $\xi \neq 0$ and $\xi = 0$, we will considered the two cases separately. For each cases, we will also consider the endpoints $p=0$ and $p=1$ seperately.
 
-If $\xi \neq 0$, then
+If $\xi \neq 0$, then we have
 
 $$
-\begin{align}
-  p &= 1 - \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} \iff\\
-  \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} &= 1-p  \quad \iff \\
-  \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)^{-1/\xi} &= 1-p  \quad \text{since } 1-p >0 \quad \iff \\
+p = 1 - \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} \quad \iff \quad \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)_+^{-1/\xi} = 1-p \; .
+$$
+
+Now, since $1-p>0$, we can drop the $( \cdot )_+$, so
+
+$$
+\begin{align*}
+  \left(1 + \dfrac{\xi (x-u)}{\sigma}\right)^{-1/\xi} &= 1-p \quad \iff \\
   1 + \dfrac{\xi (x-u)}{\sigma} &= (1 - p)^{-\xi}  \quad \iff \\
   x &= u + \dfrac{\sigma[(1 - p)^{-\xi}-1]}{\xi} \; .
-\end{align}
+\end{align*}
 $$
 
 If $\xi = 0$, then
 
 $$
-\begin{align}
-  p &= 1 - \exp\!\left(-\dfrac{x-u}{\sigma}\right) \iff\\
-  \exp\!\left(-\dfrac{x-u}{\sigma}\right) &= 1-p \quad \iff \\
-  -\dfrac{x-u}{\sigma} &= \log(1-p) \quad \iff \\
-  x &= u - \sigma\log(1-p) \; .
-\end{align}
+p = 1 - \exp\!\left(-\dfrac{x-u}{\sigma}\right) \quad \iff \quad x = u - \sigma\log(1-p) \; .
 $$
 
-Now if $p = 0$, then the expressions are valid in both cases since $1-p > 0$, and we have $F^{-1}_X(0) = u$. However, consider $p=1$, then we have issues. If $\xi < 0$, we get $F^{-1}_X(0) = u-\sigma/\xi = x^+$; if $\xi > 0$, then $(1 - p)^{-\xi} \rightarrow +\infty$, and if $\xi = 0$, then $\log(1-p) \rightarrow -\infty$, so for $\xi \geq 0$, we get $F^{-1}_X(1) = +\infty$.
+Consider $p = 0$, then the expressions are still valid in both cases since $1-p = 1 > 0$, and we have $F^{-1}_X(0) = u$. However, consider $p=1$, then we have issues. If $\xi < 0$, we get $F^{-1}_X(0) = u-\sigma/\xi = x^+$, which is fine as we have a finite upper endpoint. In contrast, if $\xi > 0$, then $(1 - p)^{-\xi} \rightarrow +\infty$, and if $\xi = 0$, then $\log(1-p) \rightarrow -\infty$, so for $\xi \geq 0$, we get $F^{-1}_X(1) = +\infty$, i.e. heavy, slowly decaying tails that were mentioned in the background materials.
 
 Altogether, the inverse CDF of $X \sim \text{GPD}(u,\sigma,\xi)$, is given by
 
@@ -145,7 +144,7 @@ Does your answer:
 :::
 
 
-(a)
+(a) We define the function `qgpd()` by handling errors first and return quantiles for a given generalised Pareto distribution according to @eq-gpd-qf.
 
 ```{r}
 qgpd <- function(p, u, sigma, xi){
@@ -182,11 +181,12 @@ The function `qgpd()` takes four inputs. The argument $\texttt{p}$ is a vector o
 
 If any probability lies outside the interval $[0,1]$, or if any of the parameters do not satisfy the required conditions, the function returns an error message. Otherwise, the function returns a vector of quantiles corresponding to the probabilities of $\texttt{p}$. Missing values in $\texttt{p}$ are preserved as missing values in the output in the same way as to `qnorm()` and `qunif()`.
 
-(b)
+(b) Let $X \sim \text{GPD}(1.5, 2, -0.4)$, and $\Pr(X < x_p) = p$. Using `qgpd()` defined in part (a), we obtain the quantiles for $p = 0.5, 0.75, 0.99$, shown in @tbl-gpd below.
 
-Let $X \sim \text{GPD}(1.5, 2, -0.4)$, and $\Pr(X < x_p) = p$. Using part (a), we get
 ```{r}
 #| echo: FALSE
+#| label: tbl-gpd
+#| tbl-cap: "Example quantiles $x_p$ of $p$ using `qgpd()`."
 
 p = c(0.5, 0.75, 0.99)
 x_p = qgpd(p, 1.5, 2, -0.4)
@@ -194,6 +194,8 @@ x_p = qgpd(p, 1.5, 2, -0.4)
 quantiles <- data.frame(p, x_p)
 knitr::kable(x = round(quantiles, 2), col.names = c("$p$", "$x_p$"))
 ```
+
+@tbl-gpd shows the estimated quantiles corresponding to $p=0.50$, $0.75$, and $0.99$ for the generalised Pareto distribution with $u=1.5$, $\sigma=2$, and $\xi=-0.4$.
 
 
 ### Question 3
@@ -224,11 +226,13 @@ gpd_samples <- read.csv("gpd_samples.csv")
 gpd_parameters <- read.csv("gpd_parameters.csv")
 ```
 
-We obtain the samples and the parameters from the files `gpd_samples.csv` and `gpd_parameters.csv`, and use them to obtain qq-plots for each of the 6 pairs of generalised Pareto distribution.
+\setlength{\belowcaptionskip}{15pt}
 
 ```{r}
 #| echo: FALSE
-#| layout-ncol: 3
+#| layout-ncol: 2
+#| fig-width: 5
+#| fig-height: 3.8
 #| label: fig-qqplots
 #| fig-cap: "QQ-plots comparing the observed and theoretical quantiles of the recorded GPD."
 #| fig-subcap: 
@@ -256,14 +260,16 @@ for (i in 1:6) {
        ylab = "Sample quantiles", 
        main = paste("QQ-plot for GDP", id))
   
-  abline(a = 0, b = 1, lty = 2)
+  abline(a = 0, b = 1, lty = 2, col = "blue")
 }
 
 ```
 
-@fig-qqplots suggests that samples $\textbf{a}$ and $\textbf{d}$ are inconsistent with their recorded parameters. For sample $\textbf{a}$, the points in the upper tail of @fig-qqplots-1 drifts away from the dashed reference line $y=x$. Also, since its recorded shape parameter is $\xi=-0.4 < 0$, the distribution must has finite upper endpoint $x^+=u-\sigma/\xi=6.5$, but the sample clearly contains an observation greater than $8$. Therefore, there are some strong evidences that suggests the parameters recorded for sample $\textbf{a}$ are incorrect. That aside, in @fig-qqplots-4, qq-plot for sample $\textbf{d}$ are in general, completely below the reference line, which indicates that its recorded parameters are incorrect.
+\setlength{\belowcaptionskip}{0pt}
 
-In contrast, sample $\textbf{b}$ follows the reference line closely in @fig-qqplots-2. Samples $\textbf{c}$, $\textbf{e}$ and $\textbf{f}$ has some deviations in their upper tails, shown on @fig-qqplots-3, @fig-qqplots-5, and @fig-qqplots-6, respectively, but these are weak evidence of incorrect parameters. Sample $\textbf{c}$ only has 20 observations, which is insufficient to deduce a significant conclusion. Samples $\textbf{e}$ and $\textbf{f}$ both have recorded $\xi >0$ and hence a heavy upper tail fits with the plots. Overall, I would suggest to only identify $\textbf{a}$ and $\textbf{d}$ as the incorrectly recorded parameter sets.
+@fig-qqplots suggests that samples $\textbf{a}$ and $\textbf{d}$ are inconsistent with their recorded parameters. For sample $\textbf{a}$, the points in the upper tail of @fig-qqplots-1 drifts away from the blue dashed reference line $y=x$. Also, since its recorded shape parameter is $\xi=-0.4 < 0$, the distribution must has finite upper endpoint $x^+=u-\sigma/\xi=6.5$, but the sample clearly contains an observation greater than $8$. Therefore, there are some strong evidences that suggests the parameters recorded for sample $\textbf{a}$ are incorrect. That aside, in @fig-qqplots-4, qq-plot for sample $\textbf{d}$ are  completely below the reference line, which indicates that its recorded parameters are incorrect.
+
+In contrast, sample $\textbf{b}$ follows the reference line closely in @fig-qqplots-2. Samples $\textbf{c}$, $\textbf{e}$ and $\textbf{f}$ has some deviations in their upper tails, shown on @fig-qqplots-3, @fig-qqplots-5, and @fig-qqplots-6, respectively, but these are weak evidence of incorrect parameters. Sample $\textbf{c}$ only has 20 observations, which is insufficient to deduce a significant conclusion. Samples $\textbf{e}$ and $\textbf{f}$ both have recorded $\xi >0$ and hence a heavy upper tail fits with the plots. Overall, I would strongly suggest to only identify $\textbf{a}$ and $\textbf{d}$ as the incorrectly recorded parameter sets, and weakly suspect $\textbf{c}$, $\textbf{e}$ and $\textbf{f}$.
 
 ### Question 4
 
@@ -290,8 +296,87 @@ Does your answer contain:
 :::
 
 
-<!-- YOUR INVESTIGATION GOES HERE --> 
+```{r}
+#| echo: FALSE
 
+riverflow <- read.csv("riverflow_2015_2024.csv")
+
+riverflow$date <- as.Date(riverflow$date)
+riverflow$year <- format(riverflow$date, "%Y")
+```
+
+```{r}
+#| echo: FALSE
+#| label: fig-flow-time
+#| fig-cap: "Time series plot for daily river flow from 2015 to 2024."
+
+plot(riverflow$date,
+     riverflow$flow,
+     type = "l",
+     xlab = "Date",
+     ylab = "Flow (m³/s)",
+     main = "River flow over time")
+
+abline(h = 75, lty = 2, col = "red")
+```
+
+@fig-flow-time displays the daily river flow against time from 2015 to 2024. A time-series plot was chosen as the initial visualisation because it shows a rough overview of the observations. The 75 cumecs threshold is shown by the dashed red line, which identified the time and magnitude of flow exceeded. These extreme observations stretch the vertical scale and consequently compress the majority of river flow observations near the bottom of the figure. As a result, the plot provides a useful overview of the complete dataset, but changes in the flow distribution are difficult to assess from this figure.
+
+```{r}
+#| echo: FALSE
+#| label: fig-flow-box
+#| fig-cap: "Box plot for yearly river flow from 2015 to 2024."
+
+boxplot(flow ~ year, 
+        data = riverflow,
+        outline = FALSE,
+        xlab = "Year", 
+        ylab = "Flow (m³/s)", 
+        main = "Box plot of yearly river flow")
+```
+
+@fig-flow-box shows yearly boxplots which checks changes in the distribution of river flow more clearly. This visualisation was chosen because the extreme observations seen in @fig-flow-time compress most of the data, causing changes in typical river flow difficult to identify, so we used box plots to summarise the full data within each year. There is a clear overall upward trend in the distributions over the years, with both the medians and quartiles generally increasing over time. This trend suggests that the distribution of river flow is not constant over time, providing evidence against the first assumption.
+
+```{r}
+#| echo: FALSE
+#| label: fig-flow-qq
+#| fig-cap: "QQ-plot of observed against theoretical quantiles from the proposed GPD."
+
+exceed <- riverflow$flow[riverflow$flow > 75] - 75
+
+p <- ppoints(length(exceed))
+
+theoretical <- qgpd(p, u = 0, sigma = 29.7, xi = 0.62)
+
+plot(theoretical, 
+     sort(exceed),
+     xlab = "Theoretical quantiles", 
+     ylab = "Sample quantiles",
+     main = "QQ-plot for the proposed GPD")
+
+abline(a = 0, b = 1, lty = 2, col = "red")
+```
+
+@fig-flow-qq shows a qq-plot to investigate whether river flows exceeding 75 cumecs are consistent with the proposed GPD.This was chosen because it compares the observed exceedance quantiles with those expected under the proposed distribution; a good fit would have all points close to the red dashed $y=x$ reference line. The points follow the reference line reasonably closely for the lower and middle quantiles, but increasingly deviate from it in the upper tail, where the theoretical quantiles tend to exceed the observed quantiles. This indicates that the proposed GPD provides a reasonable approximation for most exceedances, but its fit is less so for the most extreme values.
+
+```{r}
+#| echo: FALSE
+#| label: fig-flow-exceed
+#| fig-cap: "River flow exceedances above 75 cumecs over time."
+
+extreme <- riverflow$flow > 75
+
+plot(riverflow$date[extreme],
+     riverflow$flow[extreme] - 75,
+     pch = 16,
+     xlab = "Date",
+     ylab = "Exceedance (m³/s)",
+     main = "River flow exceedances over time")
+```
+
+@fig-flow-exceed shows the magnitudes of exceedances above 75 cumecs over time and was chosen to investigate the assumption that the exceedances are independent and identically distributed. If this assumption is reasonable, there should be no clear systematic pattern in exceedance magnitude over time. It shows that there is no obvious trend or period of consistently large or small exceedances. Therefore, the figure provides little visual evidence of dependence, so the iid assumption appears reasonably consistent with the data.
+
+Overall, these exploratory investigation provides evidence against the assumption that the distribution of river flow is constant over time. For flows exceeding 75 cumecs, the proposed GPD provides a reasonable description of the majority of sample points, but the qq-plot indicates clear deviation in the upper tail. The exceedance magnitudes also show no obvious pattern over time, so no evidence against the iid assumption. Therefore, the first assumption does not appear valid, but the second assumption is broadly reasonable.
 
 
 ::: {.callout-tip}
