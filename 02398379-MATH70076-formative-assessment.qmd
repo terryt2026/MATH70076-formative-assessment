@@ -335,7 +335,7 @@ boxplot(flow ~ year,
         main = "Box plot of yearly river flow")
 ```
 
-@fig-flow-box shows yearly boxplots which checks changes in the distribution of river flow more clearly. This visualisation was chosen because the extreme observations seen in @fig-flow-time compress most of the data, causing changes in typical river flow difficult to identify, so we used box plots to summarise the full data within each year. There is a clear overall upward trend in the distributions over the years, with both the medians and quartiles generally increasing over time. This trend suggests that the distribution of river flow is not constant over time, providing evidence against the first assumption.
+@fig-flow-box shows yearly box plots which checks changes in the distribution of river flow more clearly. This visualisation was chosen because the extreme observations seen in @fig-flow-time compress most of the data, causing changes in typical river flow difficult to identify, so we used box plots to summarise the full data within each year. There is a clear overall upward trend in the distributions over the years, with both the medians and quartiles generally increasing over time. This trend suggests that the distribution of river flow is not constant over time, providing evidence against the first assumption.
 
 ```{r}
 #| echo: FALSE
@@ -361,22 +361,23 @@ abline(a = 0, b = 1, lty = 2, col = "red")
 
 ```{r}
 #| echo: FALSE
-#| label: fig-flow-exceed
-#| fig-cap: "River flow exceedances above 75 cumecs over time."
+#| label: fig-flow-lag
+#| fig-cap: "Lag-1 plot of probability integral transformed river flow exceedances."
 
-extreme <- riverflow$flow > 75
+exceedances <- riverflow$flow[riverflow$flow > 75] - 75
+pit <- 1 - (1 + 0.62 * exceedances / 29.7)^(-1 / 0.62)
 
-plot(riverflow$date[extreme],
-     riverflow$flow[extreme] - 75,
+plot(pit[-length(pit)],
+     pit[-1],
      pch = 16,
-     xlab = "Date",
-     ylab = "Exceedance (m³/s)",
-     main = "River flow exceedances over time")
+     xlab = "PIT value (current exceedance)",
+     ylab = "PIT value (next exceedance)",
+     main = "Lag-1 plot of PIT values")
 ```
 
-@fig-flow-exceed shows the magnitudes of exceedances above 75 cumecs over time and was chosen to investigate the assumption that the exceedances are independent and identically distributed. If this assumption is reasonable, there should be no clear systematic pattern in exceedance magnitude over time. It shows that there is no obvious trend or period of consistently large or small exceedances. Therefore, the figure provides little visual evidence of dependence, so the iid assumption appears reasonably consistent with the data.
+@fig-flow-lag investigates the independence assumption for the river flow exceedances using the probability integral transform (PIT) from the background material. Each exceedance was transformed, if the proposed marginal distribution is appropriate, the transformed values should follow a $U[0,1]$ distribution; if the exceedances are also independent, successive transformed values should not show pattern. Therefore, here we compare each PIT value with the value corresponding to the next exceedance, the points are spread across the unit square without any clear pattern. There is no visual evidence of dependence between consecutive exceedances, which consistent with the independence assumption.
 
-Overall, these exploratory investigation provides evidence against the assumption that the distribution of river flow is constant over time. For flows exceeding 75 cumecs, the proposed GPD provides a reasonable description of the majority of sample points, but the qq-plot indicates clear deviation in the upper tail. The exceedance magnitudes also show no obvious pattern over time, so no evidence against the iid assumption. Therefore, the first assumption does not appear valid, but the second assumption is broadly reasonable.
+Overall, these exploratory investigation provides evidence against the assumption that the distribution of river flow is constant over time. For flows exceeding 75 cumecs, the proposed GPD provides a reasonable description of the majority of sample points, but the qq-plot indicates clear deviation in the upper tail. The lag-1 plot also show no obvious pattern, so no evidence against the iid assumption. Therefore, the first assumption does not appear valid, but the second assumption is broadly reasonable.
 
 
 ::: {.callout-tip}
@@ -405,6 +406,15 @@ Does your response:
 - critically reflection on that engagement?
 :::
 
+When constructing the visualisations for Question 4, I initially focused on displaying an rough overview of the river flow data directly. I began with a time-series plot (see @fig-flow-time in Question 4). However, I found that in this plot, changes in typical river flow difficult to see. I kept these extreme observations because I think they were an important part of the data and useful for the purpose to give an overview of the data. I then plotted yearly box plots (see @fig-flow-box in Question 4), which made the gradual upward shift in the distribution of flow much clearer. This made me realise that displaying all individual points is sensible for a rough overview but could be quite messy and cannot see details, sometimes we could group the data for clearer trend. Using multiple visualisations allowed me to examine different features of the data that could not be assessed from a single plot [@shatz2024assumption].
+
+For the proposed GPD, I chose a qq-plot (see @fig-flow-qq in Question 4) because it's useful to identify whether the distribution matched with the data. An important step was recognising that I needed to have the exceedances above the threshold as, $X-75$, not the original river flows, to be consistent with the use of the GPD for modelling exceedances [@risser2025extremes]. Although most points were reasonably close to the reference line, the largest observations showed greater deviations, making me the question the stability in the upper tail.
+
+I found investigating the iid assumption more challenging because independence cannot be assessed directly from the marginal distribution of the exceedances. I initially considered plotting the exceedance against time (see @fig-flow-exceed in Appendix A), but realised that no obvious temporal pattern would provide limited evidence for independence. I therefore used the probability integral transform from the background material, transforming each exceedance. I then constructed a lag-1 plot of consecutive PIT values (see @fig-flow-lag in Question 4) to look for dependence between successive exceedances.
+
+If I repeated the task with more time, I would use more diagnostics to see why in the GPD not fit in the upper tail, and investigate dependence at additional lags, since the lag-1 plot only considers consecutive exceedances and therefore cannot show complete independence. For a non-statistical audience, I would simplify the qq-plot and PIT terminology and explain the conclusions more visually. Overall, the task changed how I think about exploratory visualisation, an effective figure should be more than simply display the data, and should be chosen according to the specific statistical assumption we are intended to investigate.
+
+
 _End of Assessment._
 
 # Code Appendix {#sec-code-appendix}
@@ -416,7 +426,28 @@ _End of Assessment._
 ```
 
 
+# Appendix A: Supporting evidence {#sec-support-appendix}
 
+This appendix provides the evidence referred to in the reflective writing example.
 
+## A1. Flow exceedances scatter plot
 
+```{r}
+#| echo: FALSE
+#| label: fig-flow-exceed
+#| fig-cap: "River flow exceedances above 75 cumecs over time."
 
+extreme <- riverflow$flow > 75
+
+plot(riverflow$date[extreme],
+     riverflow$flow[extreme] - 75,
+     pch = 16,
+     xlab = "Date",
+     ylab = "Exceedance (m³/s)",
+     main = "River flow exceedances over time")
+```
+
+### References
+
+::: {#refs}
+:::
